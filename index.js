@@ -1,7 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const serverless = require('serverless-http');
 const axios = require('axios');
 require('dotenv').config()
+
 const app = express().use(bodyParser.json());
 
 const WEBHOOK_VERIFY_TOKEN= process.env.WEBHOOK_VERIFY_TOKEN;
@@ -69,4 +71,6 @@ app.post("/webhook", async (req, res) => {
             
             });
   
-  
+app.use('/.netlify/functions/api', router);
+
+module.exports.handler = serverless(app);
