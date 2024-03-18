@@ -1,24 +1,21 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
 import express from "express";
 import axios from "axios";
-import morgan from "morgan";
 
 const app = express();
 app.use(express.json());
-app.use(morgan("dev"));
-
-
 
 const from = process.env.FROM;
-const GRAPH_API_TOKEN = process.env.TOKEN;
+const token = process.env.TOKEN;
 const to = process.env.TO;
 const WEBHOOK_VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN;
-const PORT=process.env.PORT || 3000;
-
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+const PORT = process.env.PORT || 3000;
 
 app.post("/webhook", async (req, res) => {
   // log incoming messages
@@ -37,9 +34,9 @@ app.post("/webhook", async (req, res) => {
     // send a reply message as per the docs here https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
     await axios({
       method: "POST",
-      url: `https://graph.facebook.com/v18.0/${business_phone_number_id}/messages`,
+      url: `https://graph.facebook.com/v18.0/${from}/messages`,
       headers: {
-        Authorization: `Bearer ${GRAPH_API_TOKEN}`,
+        Authorization: `Bearer ${token}`,
       },
       data: {
         messaging_product: "whatsapp",
@@ -69,8 +66,6 @@ app.post("/webhook", async (req, res) => {
   res.sendStatus(200);
 });
 
-// accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
-// info on verification request payload: https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
@@ -92,6 +87,6 @@ app.get("/", (req, res) => {
 Checkout README.md to start.</pre>`);
 });
 
-app.listen(PORT , () => {
+app.listen(PORT, () => {
   console.log(`Server is listening on port: ${PORT}`);
 });
